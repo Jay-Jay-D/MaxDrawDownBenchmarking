@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+
 namespace Benchmarking
 {
     internal class BenchmarkingDrawDown
@@ -12,8 +13,8 @@ namespace Benchmarking
 
         public static void Main(string[] args)
         {
-            int iterations = 100;
-            int obs = 300;
+            int iterations = 4000;
+            int obs = 500;
             var rng = new Normal(0, 0.001);
             List<double[]> ccrList = new List<double[]>();
             for (int i = 0; i < iterations; i++)
@@ -40,20 +41,13 @@ namespace Benchmarking
             #region SimpleDrawDown Class
 
             GC.Collect();
-            var simpleMdd = new SimpleDrawDown();
             // run once outside of loop to avoid initialization costs
-            foreach (var val in ccrList.First())
-            {
-                simpleMdd.Calculate(val);
-            }
+            mdd = SimpleDrawDown.Run(ccrList.First());
             Console.WriteLine("SimpleDrawDown");
             sw.Restart();
             foreach (var ccr in ccrList)
             {
-                foreach (var val in ccr)
-                {
-                    simpleMdd.Calculate(val);
-                }
+                mdd = SimpleDrawDown.Run(ccr);
             }
             sw.Stop();
             Console.WriteLine((sw.ElapsedTicks));
@@ -103,6 +97,8 @@ namespace Benchmarking
             Console.WriteLine((sw.ElapsedTicks));
 
             #endregion RunningDrawDown Class
+
+            Console.Read();
         }
 
         #endregion Public Methods

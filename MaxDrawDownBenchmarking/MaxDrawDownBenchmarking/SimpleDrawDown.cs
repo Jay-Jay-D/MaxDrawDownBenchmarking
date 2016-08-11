@@ -7,46 +7,34 @@ using System.Linq;
 
 namespace Benchmarking
 {
-
-    public class SimpleDrawDown
+    public static class SimpleDrawDown
     {
-        #region Public Properties
-
-        public double Peak { get; set; }
-        public double Trough { get; set; }
-        public double MaxDrawDown { get; set; }
-        #endregion Public Properties
-
-        #region Public Constructors
-
-        public SimpleDrawDown()
+        public static double Run(double[] ccr)
         {
-            Peak = double.NegativeInfinity;
-            Trough = double.PositiveInfinity;
-            MaxDrawDown = 0;
-        }
+            var peak = double.NegativeInfinity;
+            var trough = double.PositiveInfinity;
+            var maxDrawDown = 1d;
+            var cumCcr = 0d;
+            var newValue = 0d;
 
-        #endregion Public Constructors
-
-        #region Public Methods
-
-        public void Calculate(double newValue)
-        {
-            if (newValue > Peak)
+            foreach (var obs in ccr)
             {
-                Peak = newValue;
-                Trough = Peak;
+                cumCcr += obs;
+                newValue = Math.Exp(cumCcr);
+                if (newValue > peak)
+                {
+                    peak = newValue;
+                    trough = peak;
+                }
+                else if (newValue < trough)
+                {
+                    trough = newValue;
+                    var tmpDrawDown = trough / peak;
+                    if (tmpDrawDown < maxDrawDown)
+                        maxDrawDown = tmpDrawDown;
+                }
             }
-            else if (newValue < Trough)
-            {
-                Trough = newValue;
-                var tmpDrawDown = Peak - Trough;
-                if (tmpDrawDown > MaxDrawDown)
-                    MaxDrawDown = tmpDrawDown;
-            }
+            return 1-maxDrawDown;
         }
-
-        #endregion Public Methods
     }
-
 }
